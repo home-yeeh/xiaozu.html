@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全过程人民民主闯关游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #2c7cdc;
+            margin-bottom: 20px;
+            font-size: 26px;
+        }
+
+        .guide {
+            text-align: center;
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .level {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .level.active {
+            display: block;
+        }
+
+        .level-title {
+            color: #e67e22;
+            font-size: 22px;
+            margin-bottom: 15px;
+            border-left: 5px solid #e67e22;
+            padding-left: 10px;
+        }
+
+        .level-desc {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #444;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-item {
+            width: 120px;
+            height: 120px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-item.selected {
+            border-color: #27ae60;
+            background-color: #e8f5e9;
+        }
+
+        /* 第二关点击样式 */
+        .step-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .step-item {
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .step-item.selected {
+            background: #27ae60;
+        }
+        .result-order {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            background: #f1f9f7;
+            border-radius: 8px;
+            min-height: 46px;
+            margin-bottom: 20px;
+            border: 1px solid #d0e7e2;
+        }
+        .order-item {
+            padding: 8px 12px;
+            background: #27ae60;
+            color: white;
+            border-radius: 6px;
+        }
+
+        .map-area {
+            width: 100%;
+            height: 400px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 20px;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        .scene-label {
+            position: absolute;
+            font-size: 14px;
+            color: #333;
+            font-weight: bold;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .house {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        .house.right {
+            color: #2c7cdc;
+        }
+        .house.wrong {
+            color: #999;
+        }
+        .house.found {
+            transform: scale(1.15);
+            box-shadow: 0 0 18px rgba(255, 60, 60, 0.4);
+            border-radius: 50%;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            background: #2c7cdc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #1f69bf;
+        }
+        .btn-next {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .medal-box {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .medal {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #666;
+        }
+        .medal.unlocked {
+            background: linear-gradient(45deg, #ffd700, #ff9800);
+            color: white;
+        }
+
+        .result {
+            text-align: center;
+            display: none;
+        }
+        .result-title {
+            font-size: 28px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+        .result-text {
+            font-size: 18px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        .quote {
+            font-size: 20px;
+            color: #e67e22;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">全过程人民民主闯关体验</h1>
+
+    <div class="guide" id="guideBox">
+        全过程人民民主，是人人参与、全程贯穿、全域覆盖的民主。<br>
+        快来跟着流程，体验当国家主人翁的感觉！
+        <button class="btn btn-next" onclick="startGame()">开始闯关</button>
+    </div>
+
+    <!-- 第一关 -->
+    <div class="level" id="level1">
+        <h2 class="level-title">第一关：谁能参与？—— 参与主体广泛</h2>
+        <p class="level-desc">题目：下面哪些人可以依法参与民主生活？<br>全过程人民民主的参与主体是：____</p>
+        <div class="options">
+            <div class="option-item" onclick="selectOption(this)">工人</div>
+            <div class="option-item" onclick="selectOption(this)">农民</div>
+            <div class="option-item" onclick="selectOption(this)">教师</div>
+            <div class="option-item" onclick="selectOption(this)">医生</div>
+            <div class="option-item" onclick="selectOption(this)">学生</div>
+            <div class="option-item" onclick="selectOption(this)">老人</div>
+            <div class="option-item" onclick="selectOption(this)">少数民族</div>
+            <div class="option-item" onclick="selectOption(this)">新业态从业者</div>
+        </div>
+        <button class="btn btn-next" onclick="checkLevel1()">提交答案</button>
+    </div>
+
+    <!-- 第二关：点击排序版 -->
+    <div class="level" id="level2">
+        <h2 class="level-title">第二关：民主怎么走？—— 参与环节完整</h2>
+        <p class="level-desc">
+            请将民主五大环节按正确顺序排列：<br>
+            剧情：村里要修路，先听取意见→决定方案→选代表实施→大家监督
+        </p>
+        <div class="step-box" id="stepBox">
+            <div class="step-item" onclick="chooseStep(this)">民主决策</div>
+            <div class="step-item" onclick="chooseStep(this)">民主监督</div>
+            <div class="step-item" onclick="chooseStep(this)">民主选举</div>
+            <div class="step-item" onclick="chooseStep(this)">民主协商</div>
+            <div class="step-item" onclick="chooseStep(this)">民主管理</div>
+        </div>
+        <div>你选择的顺序：</div>
+        <div class="result-order" id="resultOrder"></div>
+        <button class="btn" onclick="resetLevel2()">重新选择</button>
+    </div>
+
+    <!-- 第三关 -->
+    <div class="level" id="level3">
+        <h2 class="level-title">第三关：民主管哪些？—— 覆盖领域宽广</h2>
+        <p class="level-desc">
+            点击图中房子，找出全部民主实践场景。<br>
+        </p>
+        <div class="map-area">
+            <!-- 正确6个 -->
+            <div class="house right" data-name="小区业主大会" style="top:50px; left:80px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:90px; left:65px">业主大会</div>
+
+            <div class="house right" data-name="听证会" style="top:120px; left:250px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:155px; left:250px">听证会</div>
+
+            <div class="house right" data-name="政务公开栏" style="top:200px; left:400px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:235px; left:390px">政务公开</div>
+
+            <div class="house right" data-name="人大代表联络站" style="top:80px; left:600px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:115px; left:570px">人大联络站</div>
+
+            <div class="house right" data-name="意见箱" style="top:250px; left:500px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:285px; left:500px">意见箱</div>
+
+            <div class="house right" data-name="村规民约公示" style="top:180px; left:150px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:215px; left:130px">村规民约公示</div>
+
+            <!-- 易混淆错误 -->
+            <div class="house wrong" data-name="村委会办公楼" style="top:300px; left:100px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:335px; left:90px">村委会</div>
+
+            <div class="house wrong" data-name="社区服务站" style="top:70px; left:350px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:105px; left:340px">社区服务站</div>
+
+            <div class="house wrong" data-name="居民活动中心" style="top:320px; left:300px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:355px; left:285px">活动中心</div>
+
+            <div class="house wrong" data-name="综治中心" style="top:280px; left:650px" onclick="findPoint(this)">🏠</div>
+            <div class="scene-label" style="top:315px; left:640px">综治中心</div>
+        </div>
+        <button class="btn btn-next" onclick="checkLevel3()">提交结果</button>
+    </div>
+
+    <div class="medal-box" id="medalBox" style="display: none;">
+        <div class="medal" id="medal1">主体广泛</div>
+        <div class="medal" id="medal2">环节完整</div>
+        <div class="medal" id="medal3">领域宽广</div>
+    </div>
+
+    <div class="result" id="resultBox">
+        <h2 class="result-title">恭喜你！闯关成功</h2>
+        <p class="result-text">
+            ✅ 参与主体广泛<br>
+            ✅ 参与环节完整<br>
+            ✅ 覆盖领域宽广
+        </p>
+        <p class="result-text">你已深刻理解了全过程人民民主是最广泛的民主！</p>
+        <p class="quote">"有事好商量，众人的事情由众人商量，就是全过程人民民主。"</p>
+    </div>
+</div>
+
+<script>
+    let currentLevel = 0;
+    let foundPoints = 0;
+    const totalRight = 6;
+    const rightOrder = ["民主选举", "民主协商", "民主决策", "民主管理", "民主监督"];
+    let userOrder = [];
+
+    function startGame() {
+        document.getElementById('guideBox').style.display = 'none';
+        document.getElementById('level1').classList.add('active');
+        currentLevel = 1;
+    }
+
+    // 第一关
+    function selectOption(el) {
+        el.classList.toggle('selected');
+    }
+    function checkLevel1() {
+        const all = document.querySelectorAll('.option-item');
+        const selected = document.querySelectorAll('.option-item.selected');
+        if (selected.length === all.length) {
+            alert('正确！全过程人民民主人人都能参与，不分身份、职业、民族、年龄');
+            unlockMedal(1);
+            switchLevel(2);
+        } else {
+            alert('请选择所有人群，所有人都可以参与民主生活哦');
+        }
+    }
+
+    // 第二关 点击选择
+    function chooseStep(el) {
+        if (el.classList.contains('selected')) return;
+        let text = el.innerText.trim();
+        el.classList.add('selected');
+        userOrder.push(text);
+        showOrder();
+
+        if (userOrder.length === rightOrder.length) {
+            setTimeout(() => checkLevel2(), 300);
+        }
+    }
+    function showOrder() {
+        let box = document.getElementById('resultOrder');
+        box.innerHTML = '';
+        userOrder.forEach(t => {
+            let div = document.createElement('div');
+            div.className = 'order-item';
+            div.innerText = t;
+            box.appendChild(div);
+        });
+    }
+    function resetLevel2() {
+        userOrder = [];
+        document.querySelectorAll('.step-item').forEach(i => i.classList.remove('selected'));
+        document.getElementById('resultOrder').innerHTML = '';
+    }
+    function checkLevel2() {
+        if (JSON.stringify(userOrder) === JSON.stringify(rightOrder)) {
+            alert('排序正确！即将进入下一关');
+            unlockMedal(2);
+            switchLevel(3);
+        } else {
+            alert('顺序不正确，请点击“重新选择”再试一次');
+            resetLevel2();
+        }
+    }
+
+    // 第三关
+    function findPoint(el) {
+        if (el.classList.contains('found')) return;
+        if (el.classList.contains('right')) {
+            el.classList.add('found');
+            foundPoints++;
+        } else {
+            alert('该地点不属于民主实践场景：' + el.dataset.name);
+        }
+    }
+    function checkLevel3() {
+        if (foundPoints === totalRight) {
+            alert('全部找到！民主覆盖政治、经济、文化、社会、生态等各个领域');
+            unlockMedal(3);
+            showResult();
+        } else {
+            alert('还有民主场景未找到，请继续寻找');
+        }
+    }
+
+    // 通用
+    function unlockMedal(num) {
+        document.getElementById('medalBox').style.display = 'flex';
+        document.getElementById(`medal${num}`).classList.add('unlocked');
+    }
+    function switchLevel(level) {
+        document.querySelectorAll('.level').forEach(l => l.classList.remove('active'));
+        document.getElementById(`level${level}`).classList.add('active');
+        currentLevel = level;
+    }
+    function showResult() {
+        document.querySelectorAll('.level').forEach(l => l.classList.remove('active'));
+        document.getElementById('resultBox').style.display = 'block';
+    }
+</script>
+</body>
+</html>
